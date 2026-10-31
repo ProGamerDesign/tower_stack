@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0d14">
+  
+  <!-- SEO & Social Sharing Metadata -->
+  <title>Tower Stack - Addictive One-Tap Block Stacking Mini Game</title>
+  <meta name="description" content="Test your reflexes in Tower Stack! Drop moving blocks, trim overhangs with precision, build perfect combos to regain width, and stack your way to the top in this addictive arcade game.">
+  <meta property="og:title" content="Tower Stack - Can you reach the sky?">
+  <meta property="og:description" content="One-tap timing arcade game. Chain perfect drops, build your combo, and beat the high score!">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Tower Stack - Addictive Block Stacking Game">
+  <meta name="twitter:description" content="Can you beat my tower? Tap to stack moving blocks with precision timing!">
+
+  <!-- ==============================================
+       GOOGLE ADSENSE HEADER SCRIPT PLACEHOLDER
+       Uncomment and paste your publisher script below:
+       ============================================== -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+
+  <style>
+    /* -------------------------------------------------------------
+       CSS RESET & DESIGN TOKENS
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    :root {
+      --bg-dark: #0a0d14;
+      --card-bg: rgba(18, 24, 38, 0.88);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f0f4fc;
+      --text-muted: #8b9bb4;
+      --accent-coral: #ff5e62;
+      --accent-gold: #ffb830;
+      --accent-mint: #00e5a3;
+      --accent-blue: #38bdf8;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      line-height: 1.5;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: radial-gradient(circle at 50% 12%, #182236 0%, #0a0d14 78%);
+    }
+
+    /* -------------------------------------------------------------
+       MAIN APP CONTAINER (Desktop Arcade Frame / Mobile Full Screen)
+       ------------------------------------------------------------- */
+    .app-wrapper {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Top Navigation / Status Header */
+    .header-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      z-index: 20;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ff7e5f, #feb47b, #00e5a3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title span {
+      font-size: 0.95rem;
+      opacity: 0.85;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .best-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.05);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* -------------------------------------------------------------
+       GAME ARENA & CANVAS CONTAINER
+       ------------------------------------------------------------- */
+    .game-container {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      max-height: 640px;
+      min-height: 480px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      touch-action: none;
+      background: #0f1420;
+    }
+
+    @media (max-width: 480px) {
+      .game-container {
+        border-radius: 0;
+        box-shadow: none;
+        height: 72vh;
+        min-height: 440px;
+      }
+      .app-wrapper {
+        max-width: 100%;
+      }
+    }
+
+    #gameCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Live In-Game HUD */
+    .game-hud {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .score-display {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 30px rgba(255, 255, 255, 0.15);
+      transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .score-display.pulse {
+      transform: scale(1.15);
+    }
+
+    .combo-pill {
+      margin-top: 6px;
+      padding: 4px 14px;
+      background: linear-gradient(135deg, rgba(255, 94, 98, 0.95), rgba(255, 184, 48, 0.95));
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      box-shadow: 0 4px 14px rgba(255, 94, 98, 0.4);
+      opacity: 0;
+      transform: translateY(-8px) scale(0.9);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .combo-pill.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Start / Tap Prompt */
+    .start-prompt {
+      position: absolute;
+      bottom: 50px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+      animation: gentlePulse 1.8s infinite ease-in-out;
+    }
+
+    .start-prompt-pill {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 10px 22px;
+      border-radius: 30px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: #ffffff;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .start-prompt-sub {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.04); opacity: 0.75; }
+    }
+
+    /* -------------------------------------------------------------
+       GAME OVER MODAL (Glassmorphic Viral Card)
+       ------------------------------------------------------------- */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8, 12, 20, 0.78);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 26px 22px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      transform: translateY(20px) scale(0.94);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .game-over-tag {
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .new-best-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      color: #78350f;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      animation: tada 0.8s ease-in-out;
+    }
+
+    @keyframes tada {
+      0% { transform: scale(1); }
+      20% { transform: scale(0.9) rotate(-3deg); }
+      40% { transform: scale(1.1) rotate(3deg); }
+      60% { transform: scale(1.1) rotate(-3deg); }
+      80% { transform: scale(1.05) rotate(1deg); }
+      100% { transform: scale(1) rotate(0); }
+    }
+
+    .final-score {
+      font-size: 4.2rem;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      margin-bottom: 12px;
+      letter-spacing: -0.04em;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 16px 0 22px;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 12px 8px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #00e5a3, #02b380);
+      color: #032b1f;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(0, 229, 163, 0.35);
+      transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      touch-action: manipulation;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 229, 163, 0.45);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text-main);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(1px);
+    }
+
+    /* -------------------------------------------------------------
+       CLIPBOARD / SHARE TOAST NOTIFICATION
+       ------------------------------------------------------------- */
+    .toast {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30px);
+      background: #1e293b;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* -------------------------------------------------------------
+       MONETIZATION: GOOGLE ADSENSE PLACEHOLDER CONTAINER
+       ------------------------------------------------------------- */
+    .ad-container {
+      width: 100%;
+      min-height: 60px;
+      margin: 14px 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .ad-placeholder {
+      width: 100%;
+      max-width: 320px;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* -------------------------------------------------------------
+       HOW TO PLAY & SEO CONTENT SECTION
+       ------------------------------------------------------------- */
+    .info-section {
+      width: 100%;
+      padding: 14px 18px 30px;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .info-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .info-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .rules-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
+    .rules-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .rules-list li::before {
+      content: "•";
+      color: var(--accent-mint);
+      font-weight: bold;
+    }
+
+    .footer-credits {
+      text-align: center;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 10px;
+    }
+
+    /* -------------------------------------------------------------
+       ACCESSIBILITY: PREFERS-REDUCED-MOTION
+       ------------------------------------------------------------- */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    <!-- Header Bar -->
+    <header class="header-bar">
+      <div class="brand-title">
+        TOWER STACK <span>▲</span>
+      </div>
+      <div class="header-actions">
+        <div class="best-badge" title="Personal Best Score">
+          <span>👑</span>
+          <span id="bestScoreText">0</span>
+        </div>
+        <button id="muteBtn" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">
+          <svg id="soundOnIcon" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <svg id="soundOffIcon" viewBox="0 0 24 24" style="display: none;">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Interactive Game Canvas Container -->
+    <main class="game-container" id="gameArea" tabindex="0" role="application" aria-label="Tower Stack Game Area">
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- In-Game Realtime HUD -->
+      <div class="game-hud">
+        <div class="score-display" id="hudScore">0</div>
+        <div class="combo-pill" id="hudCombo">COMBO x2</div>
+      </div>
+
+      <!-- Start Prompt (Pulsing hint on initial idle load) -->
+      <div class="start-prompt" id="startPrompt">
+        <div class="start-prompt-pill">TAP OR SPACE TO DROP</div>
+        <div class="start-prompt-sub">Align moving blocks to build high</div>
+      </div>
+
+      <!-- Game Over Card Overlay -->
+      <div class="modal-overlay" id="gameOverModal">
+        <div class="modal-card">
+          <div class="game-over-tag">Tower Collapsed</div>
+          <div id="newBestBanner" class="new-best-banner" style="display: none;">
+            <span>🏆</span> NEW PERSONAL BEST!
+          </div>
+          <div class="final-score" id="finalScoreVal">0</div>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Best</span>
+              <span class="stat-val" id="statBestVal">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Perfects</span>
+              <span class="stat-val" id="statPerfectsVal">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Streak</span>
+              <span class="stat-val" id="statComboVal">0</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn-primary" id="restartBtn">
+              <span>⚡</span> PLAY AGAIN (SPACE / TAP)
+            </button>
+            <button class="btn-secondary" id="shareBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/>
+              </svg>
+              SHARE SCORE
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share Toast Notification -->
+      <div class="toast" id="shareToast">
+        <span>📋</span> Score copied to clipboard!
+      </div>
+    </main>
+
+    <!-- ==============================================
+         GOOGLE ADSENSE AD UNIT CONTAINER
+         Uncomment and configure your AdSense ad slot below:
+         ============================================== -->
+    <section class="ad-container" aria-label="Sponsored Advertisement">
+      <!--
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="XXXXXXXXXX"
+           data-ad-format="horizontal"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      -->
+      <div class="ad-placeholder">Advertisement Space</div>
+    </section>
+
+    <!-- How to Play & SEO Editorial Guide -->
+    <section class="info-section">
+      <div class="info-box">
+        <h2 class="info-title">🎯 How to Play Tower Stack</h2>
+        <ul class="rules-list">
+          <li><strong>One-Tap Control:</strong> Tap the screen or press <kbd style="background:rgba(255,255,255,0.1);padding:1px 6px;border-radius:4px;">Space</kbd> to drop the sliding block.</li>
+          <li><strong>Trim Overhangs:</strong> Any overhang is sliced off cleanly, making your next block narrower.</li>
+          <li><strong>Perfect Combos:</strong> Land a drop aligned with the block below (within a few pixels) to keep full width and trigger a combo chime.</li>
+          <li><strong>Size Recovery:</strong> Chain <strong>3 perfect drops in a row</strong> to expand your block width back out!</li>
+          <li><strong>Game Over:</strong> Miss the platform entirely and the round ends. Tap or press space to restart instantly!</li>
+        </ul>
+      </div>
+      <p class="footer-credits">Tower Stack • Fast, Addictive Arcade Physics • 100% Client-Side</p>
+    </section>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       TOWER STACK GAME ENGINE
+       Pure JavaScript, Zero External Dependencies, Web Audio Synthesizer
+       ========================================================================== */
+    (function () {
+      'use strict';
+
+      // -------------------------------------------------------------
+      // 1. CONFIGURATION & STATE
+      // -------------------------------------------------------------
+      const CONFIG = {
+        blockHeight: 38,             // Height of each stacked block
+        perfectTolerance: 3.5,       // Pixel threshold for a "perfect" drop
+        baseSpeed: 210,              // Initial sliding speed (px/sec)
+        maxSpeed: 520,               // Maximum sliding speed limit
+        speedRamp: 3.8,              // Speed increase per placed block
+        comboExpandBonus: 14,        // Width bonus given on every 3rd consecutive perfect
+        minBlockWidth: 3.5,          // Any slice narrower than this triggers game over
+        cameraLerpSpeed: 0.085,      // Smooth camera scroll follow factor
+        gravity: 950                 // Gravity for falling debris (px/sec^2)
+      };
+
+      // Game States: 'IDLE' -> 'PLAYING' -> 'GAMEOVER'
+      let gameState = 'IDLE';
+      let gameOverTimestamp = 0;
+
+      let score = 0;
+      let bestScore = 0;
+      let combo = 0;
+      let maxCombo = 0;
+      let perfectCount = 0;
+      let totalBlocksPlaced = 0;
+
+      // Layout & Coordinate Dimensions
+      let logicalWidth = 400;
+      let logicalHeight = 600;
+      let dpr = 1;
+      let cameraY = 0;
+      let targetCameraY = 0;
+      let screenShake = 0;
+      let isReducedMotion = false;
+
+      // Active Tower Data
+      let blocks = [];
+      let activeBlock = null;
+      let fallingPieces = [];
+      let particles = [];
+      let floatingTexts = [];
+      let confetti = [];
+
+      // Audio & Preferences
+      let isMuted = false;
+      let audioCtx = null;
+
+      // DOM Elements
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const gameArea = document.getElementById('gameArea');
+      const hudScore = document.getElementById('hudScore');
+      const hudCombo = document.getElementById('hudCombo');
+      const bestScoreText = document.getElementById('bestScoreText');
+      const startPrompt = document.getElementById('startPrompt');
+      const gameOverModal = document.getElementById('gameOverModal');
+      const finalScoreVal = document.getElementById('finalScoreVal');
+      const statBestVal = document.getElementById('statBestVal');
+      const statPerfectsVal = document.getElementById('statPerfectsVal');
+      const statComboVal = document.getElementById('statComboVal');
+      const newBestBanner = document.getElementById('newBestBanner');
+      const restartBtn = document.getElementById('restartBtn');
+      const shareBtn = document.getElementById('shareBtn');
+      const shareToast = document.getElementById('shareToast');
+      const muteBtn = document.getElementById('muteBtn');
+      const soundOnIcon = document.getElementById('soundOnIcon');
+      const soundOffIcon = document.getElementById('soundOffIcon');
+
+      // -------------------------------------------------------------
+      // 2. WEB AUDIO API SYNTHESIZER (Pure JS Procedural Sound)
+      // -------------------------------------------------------------
+      function getAudioContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      // Musical Pentatonic Scale (Hz) for rising combo melodies
+      const PENTATONIC_SCALE = [
+        261.63, 293.66, 329.63, 392.00, 440.00, // C4, D4, E4, G4, A4
+        523.25, 587.33, 659.25, 783.99, 880.00, // C5, D5, E5, G5, A5
+        1046.50, 1174.66, 1318.51, 1567.98, 1760.00 // C6, D6, E6, G6, A6
+      ];
+
+      function playTone(freq, type = 'sine', duration = 0.22, gainLevel = 0.25) {
+        if (isMuted) return;
+        const actx = getAudioContext();
+        if (!actx) return;
+
+        const osc = actx.createOscillator();
+        const gainNode = actx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, actx.currentTime);
+
+        gainNode.gain.setValueAtTime(gainLevel, actx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + duration);
+
+        osc.connect(gainNode);
+        gainNode.connect(actx.destination);
+
+        osc.start();
+        osc.stop(actx.currentTime + duration);
+      }
+
+      // Regular slice / chop sound
+      function playChopSound() {
+        if (isMuted) return;
+        const actx = getAudioContext();
+        if (!actx) return;
+
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, actx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, actx.currentTime + 0.08);
+
+        gain.gain.setValueAtTime(0.2, actx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.08);
+
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start();
+        osc.stop(actx.currentTime + 0.08);
+      }
+
+      // Perfect drop sound (Harmonious chime rising with combo)
+      function playPerfectSound(comboCount) {
+        if (isMuted) return;
+        const noteIndex = Math.min(comboCount, PENTATONIC_SCALE.length - 1);
+        const baseFreq = PENTATONIC_SCALE[noteIndex];
+
+        // Fundamental note
+        playTone(baseFreq, 'sine', 0.28, 0.28);
+        // Bright overtone
+        playTone(baseFreq * 2, 'triangle', 0.18, 0.12);
+      }
+
+      // Size up bonus fanfare (Ascending arpeggio)
+      function playSizeUpSound() {
+        if (isMuted) return;
+        const chords = [523.25, 659.25, 783.99, 1046.50]; // C Major
+        chords.forEach((freq, idx) => {
+          setTimeout(() => {
+            playTone(freq, 'sine', 0.35, 0.22);
+          }, idx * 60);
+        });
+      }
+
+      // Game over sound
+      function playGameOverSound() {
+        if (isMuted) return;
+        const actx = getAudioContext();
+        if (!actx) return;
+
+        const osc = actx.createOscillator();
+        const gain = actx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, actx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, actx.currentTime + 0.45);
+
+        gain.gain.setValueAtTime(0.22, actx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + 0.45);
+
+        osc.connect(gain);
+        gain.connect(actx.destination);
+        osc.start();
+        osc.stop(actx.currentTime + 0.45);
+      }
+
+      // New high score celebration fanfare
+      function playNewBestSound() {
+        if (isMuted) return;
+        const fanfare = [523.25, 659.25, 783.99, 1046.50];
+        fanfare.forEach((f, i) => {
+          setTimeout(() => {
+            playTone(f, 'sine', 0.4, 0.25);
+          }, i * 90);
+        });
+      }
+
+      // Mute toggle management
+      function updateMuteState(muted) {
+        isMuted = muted;
+        localStorage.setItem('tower_stack_muted', isMuted ? '1' : '0');
+        if (isMuted) {
+          soundOnIcon.style.display = 'none';
+          soundOffIcon.style.display = 'block';
+          muteBtn.setAttribute('title', 'Unmute Sound');
+        } else {
+          soundOnIcon.style.display = 'block';
+          soundOffIcon.style.display = 'none';
+          muteBtn.setAttribute('title', 'Mute Sound');
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 3. COLOR PALETTE GENERATION (Smooth Sunset to Aurora Flow)
+      // -------------------------------------------------------------
+      function getBlockPalette(index) {
+        // Hue shifts continuously by 5.5 degrees per block
+        const hue = (350 + index * 5.5) % 360;
+        return {
+          base: `hsl(${hue}, 85%, 58%)`,
+          highlight: `hsla(${hue}, 95%, 85%, 0.42)`,
+          shadow: `hsla(${hue}, 85%, 26%, 0.38)`,
+          hue: hue
+        };
+      }
+
+      // -------------------------------------------------------------
+      // 4. CANVAS RESIZE & HI-DPI SETUP
+      // -------------------------------------------------------------
+      function handleResize() {
+        const rect = gameArea.getBoundingClientRect();
+        logicalWidth = rect.width;
+        logicalHeight = rect.height;
+
+        dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        canvas.width = Math.round(logicalWidth * dpr);
+        canvas.height = Math.round(logicalHeight * dpr);
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        // Center base block if game is idle
+        if (gameState === 'IDLE' && blocks.length > 0) {
+          const initialWidth = Math.min(logicalWidth * 0.52, 210);
+          blocks[0].width = initialWidth;
+          blocks[0].x = (logicalWidth - initialWidth) / 2;
+          if (activeBlock) {
+            activeBlock.width = initialWidth;
+          }
+        }
+      }
+
+      // Rounded rectangle drawing helper
+      function drawRoundedRect(context, x, y, w, h, radius) {
+        radius = Math.max(0, Math.min(radius, w / 2, h / 2));
+        if (context.roundRect) {
+          context.beginPath();
+          context.roundRect(x, y, w, h, radius);
+        } else {
+          context.beginPath();
+          context.moveTo(x + radius, y);
+          context.arcTo(x + w, y, x + w, y + h, radius);
+          context.arcTo(x + w, y + h, x, y + h, radius);
+          context.arcTo(x, y + h, x, y, radius);
+          context.arcTo(x, y, x + w, y, radius);
+          context.closePath();
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 5. GAME INITIALIZATION & RESET
+      // -------------------------------------------------------------
+      function initGame() {
+        bestScore = parseInt(localStorage.getItem('tower_stack_best') || '0', 10);
+        bestScoreText.textContent = bestScore;
+
+        const storedMute = localStorage.getItem('tower_stack_muted');
+        updateMuteState(storedMute === '1');
+
+        isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        resetToIdle();
+      }
+
+      function resetToIdle() {
+        gameState = 'IDLE';
+        score = 0;
+        combo = 0;
+        maxCombo = 0;
+        perfectCount = 0;
+        totalBlocksPlaced = 0;
+        cameraY = 0;
+        targetCameraY = 0;
+        screenShake = 0;
+
+        hudScore.textContent = '0';
+        hudCombo.classList.remove('visible');
+        startPrompt.style.display = 'flex';
+        gameOverModal.classList.remove('active');
+        newBestBanner.style.display = 'none';
+
+        blocks = [];
+        fallingPieces = [];
+        particles = [];
+        floatingTexts = [];
+        confetti = [];
+
+        // Base foundation block at bottom of view
+        const initialWidth = Math.min(logicalWidth * 0.52, 210);
+        const baseBlock = {
+          x: (logicalWidth - initialWidth) / 2,
+          y: 0,
+          width: initialWidth,
+          height: CONFIG.blockHeight,
+          color: getBlockPalette(0)
+        };
+        blocks.push(baseBlock);
+
+        // Prepare first active moving block above base (slides gently in idle)
+        spawnNextBlock(initialWidth);
+      }
+
+      function startGame() {
+        if (gameState !== 'IDLE') return;
+        getAudioContext();
+        gameState = 'PLAYING';
+        startPrompt.style.display = 'none';
+      }
+
+      function spawnNextBlock(width) {
+        const index = blocks.length;
+        const color = getBlockPalette(index);
+        const movingRight = (index % 2 === 1);
+        const speed = Math.min(CONFIG.baseSpeed + (index * CONFIG.speedRamp), CONFIG.maxSpeed);
+
+        activeBlock = {
+          x: movingRight ? -width + 10 : logicalWidth - 10,
+          y: index * CONFIG.blockHeight,
+          width: width,
+          height: CONFIG.blockHeight,
+          speed: speed,
+          direction: movingRight ? 1 : -1,
+          color: color
+        };
+      }
+
+      // -------------------------------------------------------------
+      // 6. BLOCK DROP & CUT LOGIC (Interval Overlap Physics)
+      // -------------------------------------------------------------
+      function dropCurrentBlock() {
+        if (gameState === 'IDLE') {
+          startGame();
+          // Drop the moving block immediately on first tap
+        }
+        if (gameState !== 'PLAYING' || !activeBlock) return;
+
+        const prevBlock = blocks[blocks.length - 1];
+        const prevStart = prevBlock.x;
+        const prevEnd = prevBlock.x + prevBlock.width;
+        const activeStart = activeBlock.x;
+        const activeEnd = activeBlock.x + activeBlock.width;
+
+        // Calculate overlap interval
+        const overlapStart = Math.max(prevStart, activeStart);
+        const overlapEnd = Math.min(prevEnd, activeEnd);
+        const overlap = overlapEnd - overlapStart;
+
+        // --- CASE 1: ZERO OVERLAP (COMPLETE MISS) ---
+        if (overlap <= 0) {
+          createFallingPiece(
+            activeBlock.x,
+            activeBlock.y,
+            activeBlock.width,
+            activeBlock.height,
+            activeBlock.color,
+            (activeStart > prevStart ? 1 : -1) * 80,
+            (activeStart > prevStart ? 1 : -1) * 2.5
+          );
+
+          activeBlock = null;
+          handleGameOver();
+          return;
+        }
+
+        // --- CASE 2: SLIVER TOO THIN TO STAND ---
+        if (overlap < CONFIG.minBlockWidth) {
+          createFallingPiece(
+            activeBlock.x,
+            activeBlock.y,
+            activeBlock.width,
+            activeBlock.height,
+            activeBlock.color,
+            (activeStart > prevStart ? 1 : -1) * 70,
+            (activeStart > prevStart ? 1 : -1) * 2.0
+          );
+
+          activeBlock = null;
+          handleGameOver();
+          return;
+        }
+
+        // --- CASE 3: PERFECT DROP (Near alignment) ---
+        const leftDiff = Math.abs(activeStart - prevStart);
+        const rightDiff = Math.abs(activeEnd - prevEnd);
+        const isPerfect = (leftDiff <= CONFIG.perfectTolerance && rightDiff <= CONFIG.perfectTolerance);
+
+        if (isPerfect) {
+          // Snap position perfectly
+          activeBlock.x = prevBlock.x;
+          activeBlock.width = prevBlock.width;
+
+          score++;
+          combo++;
+          perfectCount++;
+          totalBlocksPlaced++;
+          if (combo > maxCombo) maxCombo = combo;
+
+          playPerfectSound(combo);
+          triggerScreenShake(2);
+          spawnPerfectParticles(activeBlock.x, activeBlock.y, activeBlock.width, activeBlock.color.base);
+
+          // Check 3-in-a-row combo bonus: expand width
+          if (combo % 3 === 0) {
+            const initialMax = Math.min(logicalWidth * 0.52, 210);
+            const expandedWidth = Math.min(activeBlock.width + CONFIG.comboExpandBonus, initialMax);
+            const extra = expandedWidth - activeBlock.width;
+
+            if (extra > 0) {
+              activeBlock.width = expandedWidth;
+              activeBlock.x = Math.max(8, Math.min(logicalWidth - expandedWidth - 8, activeBlock.x - extra / 2));
+              spawnFloatingText(activeBlock.x + activeBlock.width / 2, activeBlock.y + 20, `SIZE UP! 🌟`, '#ffb830');
+              playSizeUpSound();
+            } else {
+              spawnFloatingText(activeBlock.x + activeBlock.width / 2, activeBlock.y + 20, `COMBO x${combo}! 🔥`, '#ff5e62');
+            }
+          } else {
+            const label = combo > 1 ? `PERFECT x${combo}! ✨` : `PERFECT! ✨`;
+            spawnFloatingText(activeBlock.x + activeBlock.width / 2, activeBlock.y + 20, label, '#00e5a3');
+          }
+
+          blocks.push({
+            x: activeBlock.x,
+            y: activeBlock.y,
+            width: activeBlock.width,
+            height: activeBlock.height,
+            color: activeBlock.color
+          });
+
+          onBlockPlaced();
+          spawnNextBlock(activeBlock.width);
+          return;
+        }
+
+        // --- CASE 4: PARTIAL OVERHANG (SLICE) ---
+        combo = 0; // Combo breaks
+        score++;
+        totalBlocksPlaced++;
+
+        const leftOverhang = Math.max(0, prevStart - activeStart);
+        const rightOverhang = Math.max(0, activeEnd - prevEnd);
+
+        // Spawn left overhang debris if cut on left
+        if (leftOverhang > 0) {
+          createFallingPiece(
+            activeStart,
+            activeBlock.y,
+            leftOverhang,
+            activeBlock.height,
+            activeBlock.color,
+            -45 - Math.random() * 25,
+            -2.2 - Math.random() * 1.5
+          );
+        }
+
+        // Spawn right overhang debris if cut on right
+        if (rightOverhang > 0) {
+          createFallingPiece(
+            prevEnd,
+            activeBlock.y,
+            rightOverhang,
+            activeBlock.height,
+            activeBlock.color,
+            45 + Math.random() * 25,
+            2.2 + Math.random() * 1.5
+          );
+        }
+
+        playChopSound();
+        triggerScreenShake(3);
+
+        // Place sliced portion on tower
+        blocks.push({
+          x: overlapStart,
+          y: activeBlock.y,
+          width: overlap,
+          height: activeBlock.height,
+          color: activeBlock.color
+        });
+
+        onBlockPlaced();
+        spawnNextBlock(overlap);
+      }
+
+      function onBlockPlaced() {
+        // Update live HUD
+        hudScore.textContent = score;
+        hudScore.classList.remove('pulse');
+        void hudScore.offsetWidth; // Force CSS reflow
+        hudScore.classList.add('pulse');
+
+        if (combo >= 2) {
+          hudCombo.textContent = `COMBO x${combo}`;
+          hudCombo.classList.add('visible');
+        } else {
+          hudCombo.classList.remove('visible');
+        }
+
+        // Camera smoothly follows tower top (keeps top block near 45% screen height)
+        const currentTopWorldY = blocks.length * CONFIG.blockHeight;
+        const visibleThreshold = logicalHeight * 0.45;
+        if (currentTopWorldY > visibleThreshold) {
+          targetCameraY = currentTopWorldY - visibleThreshold;
+        }
+      }
+
+      // -------------------------------------------------------------
+      // 7. GAME OVER & VIRAL SCORE CARD
+      // -------------------------------------------------------------
+      function handleGameOver() {
+        gameState = 'GAMEOVER';
+        gameOverTimestamp = performance.now();
+        playGameOverSound();
+        triggerScreenShake(8);
+        hudCombo.classList.remove('visible');
+
+        const isNewBest = score > bestScore;
+        if (isNewBest) {
+          bestScore = score;
+          localStorage.setItem('tower_stack_best', bestScore.toString());
+          bestScoreText.textContent = bestScore;
+          newBestBanner.style.display = 'inline-flex';
+          spawnConfetti();
+          playNewBestSound();
+        } else {
+          newBestBanner.style.display = 'none';
+        }
+
+        // Populate Viral Card Stats
+        finalScoreVal.textContent = score;
+        statBestVal.textContent = bestScore;
+        statPerfectsVal.textContent = perfectCount;
+        statComboVal.textContent = maxCombo;
+
+        // Reveal modal card smoothly
+        setTimeout(() => {
+          if (gameState === 'GAMEOVER') {
+            gameOverModal.classList.add('active');
+          }
+        }, 450);
+      }
+
+      // -------------------------------------------------------------
+      // 8. PARTICLES, PHYSICS & DEBRIS
+      // -------------------------------------------------------------
+      function createFallingPiece(x, y, w, h, color, vx, vRot) {
+        fallingPieces.push({
+          x: x,
+          y: y,
+          width: w,
+          height: h,
+          color: color,
+          vx: vx,
+          vy: 60, // Initial slight upward pop in world coords
+          rotation: 0,
+          vRot: vRot,
+          alpha: 1.0
+        });
+      }
+
+      function spawnPerfectParticles(blockX, blockY, blockWidth, hexColor) {
+        if (isReducedMotion) return;
+        const count = 26;
+        for (let i = 0; i < count; i++) {
+          const px = blockX + Math.random() * blockWidth;
+          const py = blockY;
+          const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+          const speed = 140 + Math.random() * 220;
+          particles.push({
+            x: px,
+            y: py,
+            vx: Math.cos(angle) * speed,
+            vy: -Math.sin(angle) * speed, // upward in world coords
+            radius: 2 + Math.random() * 3,
+            color: hexColor,
+            alpha: 1,
+            life: 0.6 + Math.random() * 0.35
+          });
+        }
+      }
+
+      function spawnFloatingText(x, y, text, color) {
+        floatingTexts.push({
+          x: x,
+          y: y,
+          text: text,
+          color: color,
+          alpha: 1,
+          scale: 0.8,
+          vy: 55 // upward in world coords
+        });
+      }
+
+      function spawnConfetti() {
+        if (isReducedMotion) return;
+        const colors = ['#ff5e62', '#ffb830', '#00e5a3', '#38bdf8', '#c084fc', '#ffffff'];
+        for (let i = 0; i < 70; i++) {
+          confetti.push({
+            x: Math.random() * logicalWidth,
+            y: -20 - Math.random() * 80,
+            w: 6 + Math.random() * 6,
+            h: 10 + Math.random() * 10,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: (Math.random() - 0.5) * 140,
+            vy: 180 + Math.random() * 240,
+            rot: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 10
+          });
+        }
+      }
+
+      function triggerScreenShake(magnitude) {
+        if (isReducedMotion) return;
+        screenShake = Math.max(screenShake, magnitude);
+      }
+
+      // -------------------------------------------------------------
+      // 9. ANIMATION & RENDER LOOP
+      // -------------------------------------------------------------
+      let lastTime = performance.now();
+
+      function gameLoop(now) {
+        const dt = Math.min((now - lastTime) / 1000, 0.1);
+        lastTime = now;
+
+        update(dt);
+        render();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      function update(dt) {
+        // Camera smooth scrolling lerp
+        cameraY += (targetCameraY - cameraY) * CONFIG.cameraLerpSpeed;
+
+        // Screen shake decay
+        if (screenShake > 0) {
+          screenShake = Math.max(0, screenShake - dt * 20);
+        }
+
+        // Active block horizontal sliding (active in PLAYING and IDLE)
+        if ((gameState === 'PLAYING' || gameState === 'IDLE') && activeBlock) {
+          activeBlock.x += activeBlock.speed * activeBlock.direction * dt;
+
+          const rightBound = logicalWidth - 10;
+          const leftBound = -activeBlock.width + 10;
+
+          if (activeBlock.direction > 0 && activeBlock.x > rightBound) {
+            activeBlock.direction = -1;
+            activeBlock.x = rightBound;
+          } else if (activeBlock.direction < 0 && activeBlock.x < leftBound) {
+            activeBlock.direction = 1;
+            activeBlock.x = leftBound;
+          }
+        }
+
+        // Falling debris simulation (world physics: gravity decreases worldY)
+        for (let i = fallingPieces.length - 1; i >= 0; i--) {
+          const p = fallingPieces[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy -= CONFIG.gravity * dt;
+          p.rotation += p.vRot * dt;
+
+          // Check if piece has fallen below bottom of viewport
+          const screenY = toScreenY(p.y);
+          if (screenY > logicalHeight + 120) {
+            fallingPieces.splice(i, 1);
+          }
+        }
+
+        // Sparkle particles update
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const pt = particles[i];
+          pt.x += pt.vx * dt;
+          pt.y += pt.vy * dt;
+          pt.vy -= 450 * dt; // gravity pulls downward
+          pt.alpha -= dt / pt.life;
+          if (pt.alpha <= 0) {
+            particles.splice(i, 1);
+          }
+        }
+
+        // Floating combo text update
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+          const ft = floatingTexts[i];
+          ft.y += ft.vy * dt;
+          ft.scale = Math.min(1.15, ft.scale + dt * 2);
+          ft.alpha -= dt * 1.3;
+          if (ft.alpha <= 0) {
+            floatingTexts.splice(i, 1);
+          }
+        }
+
+        // Confetti update (screen space)
+        for (let i = confetti.length - 1; i >= 0; i--) {
+          const c = confetti[i];
+          c.x += c.vx * dt;
+          c.y += c.vy * dt;
+          c.rot += c.vRot * dt;
+          if (c.y > logicalHeight + 30) {
+            confetti.splice(i, 1);
+          }
+        }
+      }
+
+      // Convert Tower World coordinates (0 = base, +y = up) to Canvas Screen coordinates
+      function toScreenY(worldY) {
+        const baseBaseline = logicalHeight - 130;
+        return baseBaseline - (worldY - cameraY);
+      }
+
+      function render() {
+        ctx.save();
+
+        // Screen shake translation
+        if (screenShake > 0) {
+          const shakeX = (Math.random() - 0.5) * screenShake * 2;
+          const shakeY = (Math.random() - 0.5) * screenShake * 2;
+          ctx.translate(shakeX, shakeY);
+        }
+
+        // Dynamic background gradient based on height
+        const bgHue = (220 + cameraY * 0.05) % 360;
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, logicalHeight);
+        bgGrad.addColorStop(0, `hsl(${bgHue}, 36%, 11%)`);
+        bgGrad.addColorStop(1, `hsl(${bgHue + 22}, 42%, 6%)`);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+
+        // Ambient vertical guide lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(logicalWidth * 0.25, 0); ctx.lineTo(logicalWidth * 0.25, logicalHeight);
+        ctx.moveTo(logicalWidth * 0.50, 0); ctx.lineTo(logicalWidth * 0.50, logicalHeight);
+        ctx.moveTo(logicalWidth * 0.75, 0); ctx.lineTo(logicalWidth * 0.75, logicalHeight);
+        ctx.stroke();
+
+        // 1. Draw Stacked Blocks
+        for (let i = 0; i < blocks.length; i++) {
+          const b = blocks[i];
+          const sy = toScreenY(b.y);
+
+          // Cull blocks far off screen
+          if (sy > logicalHeight + 60 || sy < -100) continue;
+
+          drawBlock(ctx, b.x, sy - b.height, b.width, b.height, b.color, false);
+        }
+
+        // 2. Draw Falling Debris Pieces
+        for (let i = 0; i < fallingPieces.length; i++) {
+          const fp = fallingPieces[i];
+          const sy = toScreenY(fp.y);
+
+          ctx.save();
+          ctx.translate(fp.x + fp.width / 2, sy - fp.height / 2);
+          ctx.rotate(fp.rotation);
+          ctx.globalAlpha = Math.max(0, fp.alpha);
+          drawBlock(ctx, -fp.width / 2, -fp.height / 2, fp.width, fp.height, fp.color, true);
+          ctx.restore();
+        }
+
+        // 3. Draw Active Sliding Block
+        if (activeBlock && gameState !== 'GAMEOVER') {
+          const sy = toScreenY(activeBlock.y);
+          drawBlock(ctx, activeBlock.x, sy - activeBlock.height, activeBlock.width, activeBlock.height, activeBlock.color, false);
+        }
+
+        // 4. Draw Seam Sparkle Particles
+        for (let i = 0; i < particles.length; i++) {
+          const pt = particles[i];
+          const sy = toScreenY(pt.y);
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, pt.alpha);
+          ctx.fillStyle = pt.color;
+          ctx.beginPath();
+          ctx.arc(pt.x, sy, pt.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 5. Draw Floating Combo / Perfect Texts
+        for (let i = 0; i < floatingTexts.length; i++) {
+          const ft = floatingTexts[i];
+          const sy = toScreenY(ft.y);
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, ft.alpha);
+          ctx.font = `800 ${Math.round(18 * ft.scale)}px ${CONFIG.fontFamily || '-apple-system, sans-serif'}`;
+          ctx.textAlign = 'center';
+          ctx.fillStyle = ft.color;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+          ctx.shadowBlur = 8;
+          ctx.fillText(ft.text, ft.x, sy);
+          ctx.restore();
+        }
+
+        // 6. Draw Confetti (Screen Space Overlay)
+        for (let i = 0; i < confetti.length; i++) {
+          const c = confetti[i];
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(c.rot);
+          ctx.fillStyle = c.color;
+          ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      // High-polish individual block renderer (rounded corners, top bevel, drop shadow)
+      function drawBlock(context, x, y, width, height, palette, isFalling) {
+        if (width <= 0) return;
+
+        context.save();
+
+        const cornerRadius = Math.min(6, width / 4);
+
+        // Soft drop shadow underneath stacked blocks
+        if (!isFalling) {
+          context.shadowColor = 'rgba(0, 0, 0, 0.35)';
+          context.shadowBlur = 10;
+          context.shadowOffsetY = 5;
+        }
+
+        // Base block fill
+        drawRoundedRect(context, x, y, width, height, cornerRadius);
+        context.fillStyle = palette.base;
+        context.fill();
+
+        // Reset shadow for inner bevel details
+        context.shadowColor = 'transparent';
+
+        // Top glossy highlight bevel
+        const highlightHeight = Math.max(2, height * 0.22);
+        drawRoundedRect(context, x + 1, y + 1, width - 2, highlightHeight, Math.max(2, cornerRadius - 1));
+        context.fillStyle = palette.highlight;
+        context.fill();
+
+        // Bottom shadow bevel for 3D depth
+        drawRoundedRect(context, x + 1, y + height - 4, width - 2, 3, 2);
+        context.fillStyle = palette.shadow;
+        context.fill();
+
+        context.restore();
+      }
+
+      // -------------------------------------------------------------
+      // 10. SOCIAL SHARE & VIRAL LOOP (Web Share API + Fallback)
+      // -------------------------------------------------------------
+      function triggerShare() {
+        const shareText = `I stacked ${score} blocks in Tower Stack! Can you beat my score? 🚀`;
+        const shareData = {
+          title: 'Tower Stack',
+          text: shareText,
+          url: window.location.href
+        };
+
+        if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+          navigator.share(shareData).catch((err) => {
+            if (err.name !== 'AbortError') {
+              copyToClipboard(shareText);
+            }
+          });
+        } else {
+          // Direct clipboard copy fallback
+          copyToClipboard(`${shareText} ${window.location.href}`);
+        }
+      }
+
+      function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showToast).catch(() => {
+            execCommandFallback(text);
+          });
+        } else {
+          execCommandFallback(text);
+        }
+      }
+
+      function execCommandFallback(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          showToast();
+        } catch (e) {
+          alert('Share text: ' + text);
+        }
+        document.body.removeChild(textarea);
+      }
+
+      let toastTimeout = null;
+      function showToast() {
+        shareToast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          shareToast.classList.remove('show');
+        }, 2600);
+      }
+
+      // -------------------------------------------------------------
+      // 11. EVENT LISTENERS & INPUT HANDLING
+      // -------------------------------------------------------------
+      function setupEvents() {
+        // Tap / Click on Game Area drops or restarts
+        gameArea.addEventListener('pointerdown', (e) => {
+          // Ignore clicks on header buttons or inside the modal dialog
+          if (e.target.closest('#gameOverModal') || e.target.closest('.header-bar')) {
+            return;
+          }
+          e.preventDefault();
+
+          if (gameState === 'GAMEOVER') {
+            // Short grace period prevents accidental skip on collapse
+            if (performance.now() - gameOverTimestamp < 350) return;
+            resetToIdle();
+            startGame();
+          } else {
+            dropCurrentBlock();
+          }
+        });
+
+        // Spacebar input support
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            if (gameState === 'GAMEOVER') {
+              if (performance.now() - gameOverTimestamp < 350) return;
+              resetToIdle();
+              startGame();
+            } else {
+              dropCurrentBlock();
+            }
+          }
+        });
+
+        // Modal Action Buttons
+        restartBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          resetToIdle();
+          startGame();
+        });
+
+        shareBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          triggerShare();
+        });
+
+        // Mute button
+        muteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          getAudioContext();
+          updateMuteState(!isMuted);
+        });
+
+        // Window resize
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => {
+          setTimeout(handleResize, 100);
+        });
+
+        // Reduced motion preference changes
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (motionQuery.addEventListener) {
+          motionQuery.addEventListener('change', (e) => {
+            isReducedMotion = e.matches;
+          });
+        }
+      }
+
+      // Boot Engine
+      handleResize();
+      setupEvents();
+      initGame();
+      requestAnimationFrame(gameLoop);
+
+    })();
+  </script>
+</body>
+</html>
